@@ -41,7 +41,7 @@ class Settings(BaseSettings):
             path=f"/{values.data.get("POSTGRES_DB") or ""}",
         )
 
-    SECRET_KEY: str = "sua-chave-secreta-muito-segura-e-aleatoria"
+    SECRET_KEY: str = "XHKPi2TYSH44a3Bvysd3t2poUv3nnFSieMyJgOOu4pY"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
