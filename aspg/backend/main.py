@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,8 +9,18 @@ from app.core.config import settings
 from app.core.db import create_db_and_tables
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """ Handle application lifespan events. """
+    print("Creating tables...")
+    create_db_and_tables()
+    print("Tables created!")
+    yield
+    print("Shutting down...")
+
+
 def get_application():
-    _app = FastAPI(title=settings.PROJECT_NAME)
+    _app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
     _app.add_middleware(
         CORSMiddleware,
@@ -24,11 +37,6 @@ def get_application():
 
 
 app = get_application()
-
-
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
 
 
 @app.get("/")
