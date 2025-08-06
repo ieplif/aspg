@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(case_sensitive=True, env_file=".env")
+    model_config = SettingsConfigDict(case_sensitive=True, env_file="../.env")
 
     PROJECT_NAME: str = "ASPG - Controle Orçamentário"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
         "https://localhost:8000",
     ]
 
-    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before" )
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
@@ -38,10 +38,12 @@ class Settings(BaseSettings):
             username=values.data.get("POSTGRES_USER"),
             password=values.data.get("POSTGRES_PASSWORD"),
             host=values.data.get("POSTGRES_SERVER"),
-            path=f"/{values.data.get("POSTGRES_DB") or ""}",
+            path=f"{values.data.get("POSTGRES_DB") or ""}",
         )
 
-    SECRET_KEY: str = "XHKPi2TYSH44a3Bvysd3t2poUv3nnFSieMyJgOOu4pY"
+    # A SECRET_KEY agora é uma variável que DEVE ser fornecida via .env ou ambiente
+    # Não há valor padrão hardcoded aqui para segurança.
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
