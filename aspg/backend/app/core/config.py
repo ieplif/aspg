@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, EmailStr, Field, PostgresDsn, field_validator
@@ -5,7 +6,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(case_sensitive=True, env_file="../.env")
+    model_config = SettingsConfigDict(
+        case_sensitive=True, 
+        env_file=os.path.join(os.path.dirname(__file__), "../../../../.env")
+    )
 
     PROJECT_NAME: str = "ASPG - Controle Orçamentário"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
