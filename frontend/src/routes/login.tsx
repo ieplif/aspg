@@ -1,7 +1,17 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  VStack,
+  Heading,
+  useToast,
+} from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, FormControl, FormLabel, Input, Stack, Heading, Text, useToast } from '@chakra-ui/react';
-import { loginUser } from '../services/api';
+import { loginUser } from '../services/apiClient';
+import { useAuth } from '../hooks/useAuth';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -9,34 +19,40 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+  const { login } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
 
     try {
+      console.log('🔐 Iniciando processo de login...');
       const response = await loginUser({
-        username: email, // O backend espera 'username', mas usamos email
+        username: email,
         password: password,
       });
 
-      // Armazenar o token no localStorage (em produção, considere usar httpOnly cookies )
-      localStorage.setItem('access_token', response.access_token);
+      console.log('📡 Resposta da API:', response);
 
+      // Usar o método login do hook
+      console.log('🎯 Chamando login() do hook...');
+      login(response.access_token);
+      
       toast({
-        title: 'Login bem-sucedido.',
-        description: 'Redirecionando para o dashboard...',
+        title: 'Login realizado com sucesso!',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
 
-      // Redirecionar para o dashboard ou página principal
-      setTimeout(() => navigate('/dashboard'), 1000);
+      console.log('🔄 Redirecionando para home...');
+      navigate('/');
+
     } catch (error) {
+      console.error('❌ Erro no login:', error);
       toast({
-        title: 'Erro no login.',
-        description: error instanceof Error ? error.message : 'Email ou senha inválidos.',
+        title: 'Erro no login',
+        description: 'Verifique suas credenciais e tente novamente.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -55,54 +71,53 @@ const LoginPage = () => {
       bg="gray.50"
     >
       <Box
-        p={8}
-        maxWidth="500px"
-        borderWidth={1}
-        borderRadius={8}
-        boxShadow="lg"
+        maxW="md"
+        w="full"
         bg="white"
+        boxShadow="lg"
+        rounded="lg"
+        p={6}
+        m={4}
       >
-        <Stack spacing={4} as="form" onSubmit={handleSubmit}>
-          <Heading as="h1" size="xl" textAlign="center">
+        <VStack spacing={4}>
+          <Heading as="h1" size="lg" textAlign="center">
             ASPG - Login
           </Heading>
-          <FormControl id="email">
-            <FormLabel>Email</FormLabel>
-            <Input
-              type="email"
-              placeholder="seu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </FormControl>
-          <FormControl id="password">
-            <FormLabel>Senha</FormLabel>
-            <Input
-              type="password"
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </FormControl>
-          <Button 
-            type="submit" 
-            colorScheme="blue" 
-            size="lg" 
-            fontSize="md"
-            isLoading={isLoading}
-            loadingText="Entrando..."
-          >
-            Entrar
-          </Button>
-          <Text textAlign="center">
-            Não tem uma conta? <a href="/signup">Cadastre-se</a>
-          </Text>
-          <Text textAlign="center">
-            Esqueceu a senha? <a href="/recover-password">Recuperar Senha</a>
-          </Text>
-        </Stack>
+          
+          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <VStack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Digite seu email"
+                />
+              </FormControl>
+              
+              <FormControl isRequired>
+                <FormLabel>Senha</FormLabel>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Digite sua senha"
+                />
+              </FormControl>
+              
+              <Button
+                type="submit"
+                colorScheme="blue"
+                width="full"
+                isLoading={isLoading}
+                loadingText="Entrando..."
+              >
+                Entrar
+              </Button>
+            </VStack>
+          </form>
+        </VStack>
       </Box>
     </Box>
   );

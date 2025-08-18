@@ -1,3 +1,6 @@
+// NOTA: Este arquivo foi mantido para compatibilidade
+// Para novas funcionalidades, use apiClient.ts que tem autenticação automática
+
 const API_BASE_URL = 'http://localhost:8000';
 
 export interface LoginRequest {
@@ -10,10 +13,9 @@ export interface LoginResponse {
   token_type: string;
 }
 
-export const loginUser = async (credentials: LoginRequest ): Promise<LoginResponse> => {
+export const loginUser = async (credentials: LoginRequest): Promise<LoginResponse> => {
   console.log('Iniciando login com:', credentials);
   
-  // Versão alternativa usando JSON em vez de FormData
   try {
     console.log('Fazendo requisição para:', `${API_BASE_URL}/login/access-token`);
     
@@ -28,21 +30,12 @@ export const loginUser = async (credentials: LoginRequest ): Promise<LoginRespon
       }),
     });
 
-    console.log('Resposta recebida:', response);
-    console.log('Status:', response.status);
-    console.log('Headers:', response.headers);
-
     if (!response.ok) {
-      console.error('Resposta não OK:', response.status, response.statusText);
-      const errorData = await response.json();
-      console.error('Dados do erro:', errorData);
-      throw new Error(errorData.detail || 'Erro no login');
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    console.log('Tentando fazer parse do JSON...');
     const data = await response.json();
-    console.log('Dados recebidos:', data);
-    
+    console.log('Login bem-sucedido:', data);
     return data;
   } catch (error) {
     console.error('Erro na requisição:', error);
