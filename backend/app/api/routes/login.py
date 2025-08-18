@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
@@ -10,8 +10,13 @@ from app.api.deps import get_db
 from app.core.config import settings
 from app.core.security import create_access_token
 from app.models import Token
+from pydantic import BaseModel
 
 router = APIRouter(tags=["login"])
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 
 @router.post("/login/access-token", response_model=Token)

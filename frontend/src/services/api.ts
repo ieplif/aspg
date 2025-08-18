@@ -1,7 +1,7 @@
-const API_BASE_URL = 'http://localhost:8000'; // URL do seu backend FastAPI
+const API_BASE_URL = 'http://localhost:8000';
 
 export interface LoginRequest {
-  username: string; // Note que o FastAPI OAuth2 espera 'username', não 'email'
+  username: string;
   password: string;
 }
 
@@ -11,40 +11,41 @@ export interface LoginResponse {
 }
 
 export const loginUser = async (credentials: LoginRequest ): Promise<LoginResponse> => {
-  const formData = new FormData();
-  formData.append('username', credentials.username);
-  formData.append('password', credentials.password);
+  console.log('Iniciando login com:', credentials);
+  
+  // Versão alternativa usando JSON em vez de FormData
+  try {
+    console.log('Fazendo requisição para:', `${API_BASE_URL}/login/access-token`);
+    
+    const response = await fetch(`${API_BASE_URL}/login/access-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        username: credentials.username,
+        password: credentials.password,
+      }),
+    });
 
-  const response = await fetch(`${API_BASE_URL}/login/access-token`, {
-    method: 'POST',
-    body: formData,
-  });
+    console.log('Resposta recebida:', response);
+    console.log('Status:', response.status);
+    console.log('Headers:', response.headers);
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || 'Erro no login');
+    if (!response.ok) {
+      console.error('Resposta não OK:', response.status, response.statusText);
+      const errorData = await response.json();
+      console.error('Dados do erro:', errorData);
+      throw new Error(errorData.detail || 'Erro no login');
+    }
+
+    console.log('Tentando fazer parse do JSON...');
+    const data = await response.json();
+    console.log('Dados recebidos:', data);
+    
+    return data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+    throw error;
   }
-
-  return response.json();
-};
-
-export const createUser = async (userData: {
-  email: string;
-  password: string;
-  full_name?: string;
-}) => {
-  const response = await fetch(`${API_BASE_URL}/users/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || 'Erro ao criar usuário');
-  }
-
-  return response.json();
 };

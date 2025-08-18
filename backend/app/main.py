@@ -22,11 +22,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def get_application():
     _app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
+    # CORS mais permissivo - IMPORTANTE: Configurar ANTES das rotas
     _app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_origins=["*"],  # Em produção, usar settings.BACKEND_CORS_ORIGINS
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
 
@@ -42,3 +43,9 @@ app = get_application()
 @app.get("/")
 async def root():
     return {"message": "Welcome to ASPG API!"}
+
+
+# Endpoint para testar CORS
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS is working!"}
