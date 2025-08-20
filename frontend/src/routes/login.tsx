@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -19,7 +19,19 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+   // Redirecionar se já estiver autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('🔄 Usuário já autenticado, redirecionando...');
+      // Múltiplas estratégias de redirecionamento
+      navigate('/', { replace: true });
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 100);
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
