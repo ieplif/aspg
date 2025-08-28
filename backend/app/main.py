@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import login, users
+from app.api.routes import login, users, dashboard, receitas, despesas
 from app.core.config import settings
 from app.core.db import create_db_and_tables
 
@@ -33,6 +33,9 @@ def get_application():
 
     _app.include_router(login.router)
     _app.include_router(users.router)
+    _app.include_router(dashboard.router)
+    _app.include_router(receitas.router)
+    _app.include_router(despesas.router)
 
     return _app
 
